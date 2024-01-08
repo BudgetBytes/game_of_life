@@ -11,8 +11,8 @@
 #define WIDTH 800
 #define HEIGHT WIDTH
 #define COLUMNS 100
-#define RECT_DIM (WIDTH / COLUMNS - 1) - 1 // don't know why but if i set -1 after it gives rectangle 1px padding
 #define ROWS COLUMNS
+#define RECT_DIM (WIDTH / COLUMNS - 1) - 1 // don't know why but if i set -1 after it gives rectangle 1px padding
 #define DELAY 100000
 
 const Color COLORS[] = {GRAY,GOLD,PINK,RED,LIME,SKYBLUE,VIOLET,BEIGE};
@@ -108,8 +108,6 @@ void init_world_as_glider_gun(bool world[ROWS][COLUMNS])
     world[4][36] = true;
 }
 
-
-
 void init_world_randomly(bool world[ROWS][COLUMNS])
 {
     srand(time(0));
@@ -119,8 +117,6 @@ void init_world_randomly(bool world[ROWS][COLUMNS])
         }
     }
 }
-
-
 
 int count_live_neighbors(bool world[ROWS][COLUMNS], int row, int col)
 {
@@ -149,7 +145,7 @@ char *shift_args(int *argc, char ***argv) {
 }
 
 void print_usage(char* program) {
-    printf("USAGE: %s <subcommand>\n", program);
+    printf("USAGE: %s <subcommand> <option>\n", program);
     printf("SUBCOMMANDS:\n");
     printf("    block     <option>  --initialize world as block\n");
     printf("    glider    <option>  --initialize world as glider\n");
@@ -195,11 +191,7 @@ void show_world(void (*init_function)(bool world[ROWS][COLUMNS]), bool world[ROW
                     if (newWorld[i][j]){
                         int posX = WIDTH / 2 - (COLUMNS * RECT_DIM) / 2 + j * RECT_DIM;
                         int posY = HEIGHT / 2 - (ROWS * RECT_DIM) / 2 + i * RECT_DIM;
-                        if (option) {
-                            DrawRectangle(posX, posY, RECT_DIM, RECT_DIM, COLORS[rand()%COLORS_LEN]);    
-                        } else {
-                            DrawRectangle(posX, posY, RECT_DIM, RECT_DIM, RAYWHITE);
-                        }
+                        option ?  DrawRectangle(posX, posY, RECT_DIM, RECT_DIM, COLORS[rand()%COLORS_LEN]) :  DrawRectangle(posX, posY, RECT_DIM, RECT_DIM, RAYWHITE);
                     }
                 }
             }
@@ -228,7 +220,7 @@ int main(int argc, char **argv)
     }
     char *option = shift_args(&argc, &argv);
     if (option && !(strcmp(option, "epileptic") == 0))  {
-        printf("INVALID OPTION: %s", option);
+        printf("INVALID OPTION: %s\n", option);
         print_usage(program);
         return 0;
     } 

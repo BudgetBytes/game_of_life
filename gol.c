@@ -27,16 +27,15 @@ int count_live_neighbors(bool world[ROWS][COLUMNS], int row, int col)
 
 void print_usage(char *program)
 {
-    printf("USAGE: %s <subcommand> <option>\n", program);
+    printf("USAGE: %s <subcommand>\n", program);
     printf("SUBCOMMANDS:\n");
-    printf("    block     <option>  --initialize world as block\n");
-    printf("    glider    <option>  --initialize world as glider\n");
-    printf("    blinker   <option>  --initialize world as blinker\n");
-    printf("    pulsar    <option>  --initialize world as pulsar\n");
-    printf("    gun       <option>  --initialize world as glider gun\n");
-    printf("    random    <option>  --initialize world randomly\n");
-    printf("OPTIONS:\n");
-    printf("    epileptic           --random colors\n");
+    printf("    block               --initialize world as block\n");
+    printf("    glider              --initialize world as glider\n");
+    printf("    blinker             --initialize world as blinker\n");
+    printf("    pulsar              --initialize world as pulsar\n");
+    printf("    gun                 --initialize world as glider gun\n");
+    printf("    random              --initialize world randomly\n");
+    printf("    create              --initialize empty world to draw and simulate\n");
 }
 
 void create_world()
@@ -84,7 +83,7 @@ void create_world()
                             if (liveNeighbors == 2 || liveNeighbors == 3){
                                 temp_world[i][j] = true;
                             }
-                            else if (liveNeighbors < 2 || liveNeighbors > 3){
+                            else {
                                 temp_world[i][j] = false;
                             }
                         }
@@ -101,7 +100,7 @@ void create_world()
                         }
                     }
                 }
-                memcpy(world, temp_world, sizeof(temp_world[0][0]) * ROWS * COLUMNS);
+                memcpy(world, temp_world, sizeof(temp_world));
                 usleep(DELAY);
             }
         }
@@ -111,7 +110,7 @@ void create_world()
     CloseWindow();
 }
 
-void show_world(void (*init_function)(bool world[ROWS][COLUMNS]), bool world[ROWS][COLUMNS], char *option)
+void show_world(void (*init_function)(bool world[ROWS][COLUMNS]), bool world[ROWS][COLUMNS])
 {
     init_function(world);
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
@@ -133,7 +132,7 @@ void show_world(void (*init_function)(bool world[ROWS][COLUMNS]), bool world[ROW
                         if (liveNeighbors == 2 || liveNeighbors == 3){
                             temp_world[i][j] = true;
                         }
-                        else if (liveNeighbors < 2 || liveNeighbors > 3){
+                        else {
                             temp_world[i][j] = false;
                         }
                     }
@@ -143,14 +142,12 @@ void show_world(void (*init_function)(bool world[ROWS][COLUMNS]), bool world[ROW
                         }
                     }
                     if (temp_world[i][j] == true){
-                        int posX = WIDTH / 2 - (COLUMNS * RECT_DIM) / 2 + j * RECT_DIM;
-                        int posY = HEIGHT / 2 - (ROWS * RECT_DIM) / 2 + i * RECT_DIM;
-                        option ? DrawRectangle(posX, posY, RECT_DIM, RECT_DIM, COLORS[rand() % COLORS_LEN]) : DrawRectangle(posX, posY, RECT_DIM, RECT_DIM, RAYWHITE);
+                        DrawRectangle(j*RECT_DIM, i*RECT_DIM, RECT_DIM, RECT_DIM, RAYWHITE);
                     }
                 }
             }
 
-            memcpy(world, temp_world, sizeof(temp_world[0][0]) * ROWS * COLUMNS);
+            memcpy(world, temp_world, sizeof(temp_world));
             usleep(DELAY);
         }
         EndDrawing();
@@ -169,31 +166,24 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    char *option = *argv++;
-    if (option != NULL && !(strcmp(option, "epileptic") == 0)){
-        printf("INVALID OPTION: %s\n", option);
-        print_usage(program);
-        return 0;
-    }
-
     bool world[ROWS][COLUMNS] = {false};
     if (strcmp(command, "block") == 0){
-        show_world(init_world_as_block, world, option);
+        show_world(init_world_as_block, world);
     }
     else if (strcmp(command, "glider") == 0){
-        show_world(init_world_as_glider, world, option);
+        show_world(init_world_as_glider, world);
     }
     else if (strcmp(command, "blinker") == 0){
-        show_world(init_world_as_blinker, world, option);
+        show_world(init_world_as_blinker, world);
     }
     else if (strcmp(command, "pulsar") == 0){
-        show_world(init_world_as_pulsar, world, option);
+        show_world(init_world_as_pulsar, world);
     }
     else if (strcmp(command, "gun") == 0){
-        show_world(init_world_as_glider_gun, world, option);
+        show_world(init_world_as_glider_gun, world);
     }
     else if (strcmp(command, "random") == 0){
-        show_world(init_world_randomly, world, option);
+        show_world(init_world_randomly, world);
     }
     else if (strcmp(command, "create") == 0){
         create_world();

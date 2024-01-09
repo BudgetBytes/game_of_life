@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
-#include <raylib.h>
 #define WIDTH 800
 #define HEIGHT WIDTH
 #define RECT_DIM 10
@@ -14,9 +13,6 @@
 #define DELAY 100000
 
 #define BACKGROUND BLACK
-
-const Color COLORS[] = {GRAY, GOLD, PINK, RED, LIME, SKYBLUE, VIOLET, BEIGE};
-#define COLORS_LEN 8
 
 void init_world_as_glider(bool world[ROWS][COLUMNS])
 {

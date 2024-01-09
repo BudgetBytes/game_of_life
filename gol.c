@@ -1,6 +1,6 @@
 // https://it.wikipedia.org/wiki/Gioco_della_vita
-//TODO: aggungi logica per poter creare pattern, lavagna nera e cliccando con il mouse vengono aggiunti i pixel
-//TODO: aggiungi logica per poter salvare i pattern creati, poterli caricare da file per poi avviare la visualizzazione
+// TODO: aggungi logica per poter creare pattern, lavagna nera e cliccando con il mouse vengono aggiunti i pixel
+// TODO: aggiungi logica per poter salvare i pattern creati, poterli caricare da file per poi avviare la visualizzazione
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -12,12 +12,14 @@
 
 #define WIDTH 800
 #define HEIGHT WIDTH
-#define COLUMNS 100
+#define RECT_DIM 10
+#define COLUMNS WIDTH / RECT_DIM
 #define ROWS COLUMNS
-#define RECT_DIM (WIDTH / COLUMNS - 1) - 1 // don't know why but if i set -1 after it gives rectangle 1px padding
 #define DELAY 100000
 
-const Color COLORS[] = {GRAY,GOLD,PINK,RED,LIME,SKYBLUE,VIOLET,BEIGE};
+#define BACKGROUND BLACK
+
+const Color COLORS[] = {GRAY, GOLD, PINK, RED, LIME, SKYBLUE, VIOLET, BEIGE};
 #define COLORS_LEN 8
 
 void init_world_as_glider(bool world[ROWS][COLUMNS])
@@ -44,12 +46,13 @@ void init_world_as_blinker(bool world[ROWS][COLUMNS])
     world[1][3] = true;
 }
 
-void init_world_as_pulsar(bool world[ROWS][COLUMNS]) {
+void init_world_as_pulsar(bool world[ROWS][COLUMNS])
+{
     world[0][1] = true;
     world[0][2] = true;
     world[0][6] = true;
     world[0][7] = true;
-    
+
     world[1][0] = true;
     world[1][3] = true;
     world[1][5] = true;
@@ -59,7 +62,7 @@ void init_world_as_pulsar(bool world[ROWS][COLUMNS]) {
     world[2][3] = true;
     world[2][5] = true;
     world[2][8] = true;
-    
+
     world[3][1] = true;
     world[3][2] = true;
     world[3][6] = true;
@@ -133,7 +136,8 @@ int count_live_neighbors(bool world[ROWS][COLUMNS], int row, int col)
     return count;
 }
 
-void print_usage(char* program) {
+void print_usage(char *program)
+{
     printf("USAGE: %s <subcommand> <option>\n", program);
     printf("SUBCOMMANDS:\n");
     printf("    block     <option>  --initialize world as block\n");
@@ -146,50 +150,118 @@ void print_usage(char* program) {
     printf("    epileptic           --random colors\n");
 }
 
-void show_world(void (*init_function)(bool world[ROWS][COLUMNS]), bool world[ROWS][COLUMNS], char* option) {
+void create_world()
+{
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    InitWindow(WIDTH, HEIGHT, "Game of Life");
+    SetTargetFPS(60);
+    ClearBackground(BACKGROUND);
+
+    bool world[ROWS][COLUMNS] = {false};
+
+    while (!WindowShouldClose()){
+        BeginDrawing();
+        {
+            // draw
+            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)){
+                int mouseX = GetMouseX() % COLUMNS * RECT_DIM;
+                int mouseY = GetMouseY() % COLUMNS * RECT_DIM;
+                world[mouseY / RECT_DIM][mouseX / RECT_DIM] = true;
+                DrawRectangle(mouseX, mouseY, RECT_DIM, RECT_DIM, RAYWHITE);
+            }
+
+            // erase
+            if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)){
+                int mouseX = GetMouseX() % COLUMNS * RECT_DIM;
+                int mouseY = GetMouseY() % COLUMNS * RECT_DIM;
+                world[mouseY / RECT_DIM][mouseX / RECT_DIM] = false;
+                DrawRectangle(mouseX, mouseY, RECT_DIM, RECT_DIM, BACKGROUND);
+            }
+            // clean everything
+            if (IsKeyPressed(KEY_C)){
+                ClearBackground(BACKGROUND);
+                memset(world, 0, sizeof(world));
+            }
+
+            // run simulation
+            if (IsKeyDown(KEY_R)){
+                bool temp_world[ROWS][COLUMNS] = {false};
+
+                for (int i = 0; i < ROWS; ++i){
+                    for (int j = 0; j < COLUMNS; ++j){
+                        int liveNeighbors = count_live_neighbors(world, i, j);
+
+                        if (world[i][j]){
+                            if (liveNeighbors == 2 || liveNeighbors == 3){
+                                temp_world[i][j] = true;
+                            }
+                            else if (liveNeighbors < 2 || liveNeighbors > 3){
+                                temp_world[i][j] = false;
+                            }
+                        }
+                        else{
+                            if (liveNeighbors == 3){
+                                temp_world[i][j] = true;
+                            }
+                        }
+                        if (temp_world[i][j]){
+                            DrawRectangle(j * RECT_DIM, i * RECT_DIM, RECT_DIM, RECT_DIM, RAYWHITE);
+                        }
+                        else{
+                            DrawRectangle(j * RECT_DIM, i * RECT_DIM, RECT_DIM, RECT_DIM, BACKGROUND);
+                        }
+                    }
+                }
+                memcpy(world, temp_world, sizeof(temp_world[0][0]) * ROWS * COLUMNS);
+                usleep(DELAY);
+            }
+        }
+        EndDrawing();
+    }
+
+    CloseWindow();
+}
+
+void show_world(void (*init_function)(bool world[ROWS][COLUMNS]), bool world[ROWS][COLUMNS], char *option)
+{
     init_function(world);
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(WIDTH, HEIGHT, "Game of Life");
     SetTargetFPS(60);
 
-    while (!WindowShouldClose())
-    {
+    while (!WindowShouldClose()){
         BeginDrawing();
         {
-            ClearBackground(BLACK);
+            ClearBackground(BACKGROUND);
 
-            bool newWorld[ROWS][COLUMNS] = {false};
+            bool temp_world[ROWS][COLUMNS] = {false};
+
             for (int i = 0; i < ROWS; ++i){
                 for (int j = 0; j < COLUMNS; ++j){
                     int liveNeighbors = count_live_neighbors(world, i, j);
 
                     if (world[i][j]){
                         if (liveNeighbors == 2 || liveNeighbors == 3){
-                            newWorld[i][j] = true;
+                            temp_world[i][j] = true;
                         }
                         else if (liveNeighbors < 2 || liveNeighbors > 3){
-                            newWorld[i][j] = false;
+                            temp_world[i][j] = false;
                         }
                     }
-                    else {
+                    else{
                         if (liveNeighbors == 3){
-                            newWorld[i][j] = true;
+                            temp_world[i][j] = true;
                         }
                     }
-
-                    if (newWorld[i][j]){
+                    if (temp_world[i][j] == true){
                         int posX = WIDTH / 2 - (COLUMNS * RECT_DIM) / 2 + j * RECT_DIM;
                         int posY = HEIGHT / 2 - (ROWS * RECT_DIM) / 2 + i * RECT_DIM;
-                        option ?  DrawRectangle(posX, posY, RECT_DIM, RECT_DIM, COLORS[rand()%COLORS_LEN]) :  DrawRectangle(posX, posY, RECT_DIM, RECT_DIM, RAYWHITE);
+                        option ? DrawRectangle(posX, posY, RECT_DIM, RECT_DIM, COLORS[rand() % COLORS_LEN]) : DrawRectangle(posX, posY, RECT_DIM, RECT_DIM, RAYWHITE);
                     }
                 }
             }
 
-            for (int i = 0; i < ROWS; ++i){
-                for (int j = 0; j < COLUMNS; ++j){
-                    world[i][j] = newWorld[i][j];
-                }
-            }
+            memcpy(world, temp_world, sizeof(temp_world[0][0]) * ROWS * COLUMNS);
             usleep(DELAY);
         }
         EndDrawing();
@@ -198,35 +270,46 @@ void show_world(void (*init_function)(bool world[ROWS][COLUMNS]), bool world[ROW
     CloseWindow();
 }
 
-int main(int argc, char **argv) 
+int main(int argc, char **argv)
 {
-    char *program =  *argv++;
-    
+    char *program = *argv++;
+
     char *command = *argv++;
-    if (command == NULL) {
+    if (command == NULL){
         print_usage(program);
         return 0;
     }
+
     char *option = *argv++;
-    if (option != NULL && !(strcmp(option, "epileptic") == 0))  {
+    if (option != NULL && !(strcmp(option, "epileptic") == 0)){
         printf("INVALID OPTION: %s\n", option);
         print_usage(program);
         return 0;
-    } 
+    }
+
     bool world[ROWS][COLUMNS] = {false};
-    if (strcmp(command, "block") == 0) {
+    if (strcmp(command, "block") == 0){
         show_world(init_world_as_block, world, option);
-    } else if (strcmp(command, "glider") == 0 ) {
+    }
+    else if (strcmp(command, "glider") == 0){
         show_world(init_world_as_glider, world, option);
-    } else if (strcmp(command, "blinker") == 0 ) {
+    }
+    else if (strcmp(command, "blinker") == 0){
         show_world(init_world_as_blinker, world, option);
-    } else if (strcmp(command, "pulsar") == 0 ) {
+    }
+    else if (strcmp(command, "pulsar") == 0){
         show_world(init_world_as_pulsar, world, option);
-    } else if (strcmp(command, "gun") == 0 ) {
+    }
+    else if (strcmp(command, "gun") == 0){
         show_world(init_world_as_glider_gun, world, option);
-    } else if (strcmp(command, "random") == 0 ) {
+    }
+    else if (strcmp(command, "random") == 0){
         show_world(init_world_randomly, world, option);
-    } else {
+    }
+    else if (strcmp(command, "create") == 0){
+        create_world();
+    }
+    else{
         printf("INVALID COMMAND: %s\n", command);
         print_usage(program);
     }

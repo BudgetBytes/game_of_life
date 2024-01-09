@@ -5,12 +5,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
-#define WIDTH 800
+#define WIDTH 1200
 #define HEIGHT WIDTH
-#define RECT_DIM 10
+#define RECT_DIM 2
 #define COLUMNS WIDTH / RECT_DIM
-#define ROWS COLUMNS
-#define DELAY 100000
+#define ROWS HEIGHT / RECT_DIM
+#define DELAY 100
 
 #define BACKGROUND BLACK
 

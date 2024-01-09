@@ -1,4 +1,6 @@
 // https://it.wikipedia.org/wiki/Gioco_della_vita
+//TODO: aggungi logica per poter creare pattern, lavagna nera e cliccando con il mouse vengono aggiunti i pixel
+//TODO: aggiungi logica per poter salvare i pattern creati, poterli caricare da file per poi avviare la visualizzazione
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -131,19 +133,6 @@ int count_live_neighbors(bool world[ROWS][COLUMNS], int row, int col)
     return count;
 }
 
-char *shift_args(int *argc, char ***argv) {
-    if (*argc < 1 ) {
-        return NULL;
-    }
-    char *arg = malloc(strlen(**argv) + 1); 
-    strcpy(arg, **argv);
-
-    (*argc)--;
-    (*argv)++;
-
-    return arg;
-}
-
 void print_usage(char* program) {
     printf("USAGE: %s <subcommand> <option>\n", program);
     printf("SUBCOMMANDS:\n");
@@ -211,15 +200,15 @@ void show_world(void (*init_function)(bool world[ROWS][COLUMNS]), bool world[ROW
 
 int main(int argc, char **argv) 
 {
-    char *program =  shift_args(&argc, &argv);
+    char *program =  *argv++;
     
-    char *command = shift_args(&argc, &argv);
-    if (!command) {
+    char *command = *argv++;
+    if (command == NULL) {
         print_usage(program);
         return 0;
     }
-    char *option = shift_args(&argc, &argv);
-    if (option && !(strcmp(option, "epileptic") == 0))  {
+    char *option = *argv++;
+    if (option != NULL && !(strcmp(option, "epileptic") == 0))  {
         printf("INVALID OPTION: %s\n", option);
         print_usage(program);
         return 0;

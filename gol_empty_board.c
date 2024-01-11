@@ -40,14 +40,35 @@ void create_world()
 {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(WIDTH, HEIGHT, "Game of Life");
-    SetTargetFPS(60);
     ClearBackground(BACKGROUND);
+    SetTargetFPS(60);
 
     bool world[ROWS][COLUMNS] = {false};
+
+   
 
     while (!WindowShouldClose()){
         BeginDrawing();
         {
+            // Show Grid
+            if (IsKeyReleased(KEY_G)) {
+                for (size_t i = 0; i < ROWS; ++i) {
+                    DrawLine(i * RECT_DIM, 0, i * RECT_DIM, COLUMNS * RECT_DIM, GRAY);
+                }
+                for (size_t j = 0; j < COLUMNS; ++j) {
+                    DrawLine(0, j * RECT_DIM, ROWS * RECT_DIM, j * RECT_DIM, GRAY);
+                }
+            }
+            // Remove Grid
+            if (IsKeyDown(KEY_LEFT_SHIFT) && IsKeyReleased(KEY_G)) {
+                for (size_t i = 0; i < ROWS; ++i) {
+                    DrawLine(i * RECT_DIM, 0, i * RECT_DIM, COLUMNS * RECT_DIM, BACKGROUND);
+                }
+                for (size_t j = 0; j < COLUMNS; ++j) {
+                    DrawLine(0, j * RECT_DIM, ROWS * RECT_DIM, j * RECT_DIM, BACKGROUND);
+                }
+            }
+            // Draw left diagonal 
             if (IsKeyDown(KEY_D) && IsMouseButtonReleased(MOUSE_BUTTON_LEFT)){
                 for (size_t i = 0, j = 0; i < COLUMNS && j < ROWS; ++i, ++j){
                     int mouseY = i * RECT_DIM;
@@ -57,6 +78,7 @@ void create_world()
                 }
             }
 
+            // Draw right diagonal 
             if (IsKeyDown(KEY_D) && IsMouseButtonReleased(MOUSE_BUTTON_RIGHT)){
                 for (size_t i = COLUMNS - 1, j = 0; i >= 0 && j < ROWS; --i, ++j){
                     int mouseY = i * RECT_DIM;
@@ -114,11 +136,10 @@ void create_world()
             if (IsKeyDown(KEY_N)){
 
                 bool temp_world[ROWS][COLUMNS] = {false};
-
+                
                 for (size_t i = 0; i < ROWS; ++i){
                     for (size_t j = 0; j < COLUMNS; ++j){
                         int liveNeighbors = count_live_neighbors(world, i, j);
-
                         if (world[i][j]){
                             if (liveNeighbors == 2 || liveNeighbors == 3){
                                 temp_world[i][j] = true;
@@ -132,6 +153,7 @@ void create_world()
                                 temp_world[i][j] = true;
                             }
                         }
+
                         if (temp_world[i][j]){
                             DrawRectangle(j * RECT_DIM, i * RECT_DIM, RECT_DIM, RECT_DIM, RAYWHITE);
                         }

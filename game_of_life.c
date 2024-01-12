@@ -9,13 +9,14 @@
 #define SCREEN_WIDTH 1200
 #define SCREEN_HEIGHT 800
 #define RECT_DIM 4
+#define IMG_CELL_SIZE (4 + 1)
 #define PADDING 20
-const int ROWS = 800;
-const int COLS = 1200;
+#define ROWS 800
+#define COLS 1200
 
 void init_board(Image image, bool board[ROWS][COLS])
 {
-	assert(image.height <= ROWS && image.width <= COLS && "ERROR: Image resolution is greater than board size");
+	assert(image.height <= (int) ROWS && image.width <= (int)COLS && "ERROR: Image resolution is greater than board size");
 	unsigned char *pixel_data = image.data;
 	for (int i = 0; i < image.height; i++)
 	{
@@ -41,11 +42,11 @@ void init_board(Image image, bool board[ROWS][COLS])
 int count_live_neighbors(bool world[ROWS][COLS], size_t row, size_t col)
 {
 	int count = 0;
-	for (size_t i = row - 5; i <= row + 5; i += 5)
+	for (size_t i = row -IMG_CELL_SIZE; i <= row + IMG_CELL_SIZE; i+=IMG_CELL_SIZE)
 	{
-		for (size_t j = col - 5; j <= col + 5; j += 5)
+		for (size_t j = col - IMG_CELL_SIZE; j <= col + IMG_CELL_SIZE; j+=IMG_CELL_SIZE)
 		{
-			if (i >= 0 && i < ROWS && j >= 0 && j < COLS && !(i == row && j == col) && world[i][j])
+			if ( i < ROWS && j < COLS && !(i == row && j == col) && world[i][j])
 			{
 				count++;
 			}
@@ -80,8 +81,7 @@ int main(int argc, char **argv)
 	cam.target.x = boardCenterX;
 	cam.target.y = boardCenterY;
 
-	bool board[ROWS][COLS];
-	memset(board, false, ROWS * COLS * sizeof(bool));
+	bool board[ROWS][COLS] = {0};
 	init_board(image, board);
 
 	// game loop
@@ -120,23 +120,22 @@ int main(int argc, char **argv)
 		BeginDrawing();
 		BeginMode2D(cam);
 
-		bool temp_board[ROWS][COLS];
-		memset(temp_board, false, ROWS * COLS * sizeof(bool));
+		bool temp_board[ROWS][COLS] = {0};
 		// DEBUG Draw borders 
-		//DrawRectangle(0 * RECT_DIM, 0 * RECT_DIM, RECT_DIM * 4, RECT_DIM * 4, RAYWHITE);
-		//DrawRectangle(COLS * RECT_DIM, 0 * RECT_DIM, RECT_DIM * 4, RECT_DIM * 4, RAYWHITE);
-		//DrawRectangle(0, ROWS * RECT_DIM, RECT_DIM * 4, RECT_DIM * 4, RAYWHITE);
-		//DrawRectangle(COLS * RECT_DIM, ROWS * RECT_DIM, RECT_DIM * 4, RECT_DIM * 4, RAYWHITE);
+		// DrawRectangle(0 * RECT_DIM, 0 * RECT_DIM, RECT_DIM * 4, RECT_DIM * 4, RAYWHITE);
+		// DrawRectangle(COLS * RECT_DIM, 0 * RECT_DIM, RECT_DIM * 4, RECT_DIM * 4, RAYWHITE);
+		// DrawRectangle(0, ROWS * RECT_DIM, RECT_DIM * 4, RECT_DIM * 4, RAYWHITE);
+		// DrawRectangle(COLS * RECT_DIM, ROWS * RECT_DIM, RECT_DIM * 4, RECT_DIM * 4, RAYWHITE);
 
-		for (size_t i = 0; i < ROWS; ++i)
+		for (size_t i = 0 + PADDING; i < ROWS; i++)
 		{
-			for (size_t j = 0; j < COLS; ++j)
+			for (size_t j = 0 + PADDING; j < COLS; j++)
 			{
 				int liveNeighbors = count_live_neighbors(board, i, j);
 				// if (board[i][j])
-				//	temp_board[i][j] = true;
+				// 	temp_board[i][j] = true;
 				// else
-				//	temp_board[i][j] = false;
+				// 	temp_board[i][j] = false;
 				if (board[i][j])
 				{
 

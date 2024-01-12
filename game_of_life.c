@@ -92,7 +92,6 @@ int main(int argc, char **argv)
 		{
 			Vector2 delta = GetMouseDelta();
 			delta = Vector2Scale(delta, -1.0f / cam.zoom);
-
 			cam.target = Vector2Add(cam.target, delta);
 		}
 
@@ -100,13 +99,8 @@ int main(int argc, char **argv)
 		float wheel = GetMouseWheelMove();
 		if (wheel != 0)
 		{
-			// get the world point that is under the mouse
 			Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), cam);
-
-			// set the offset to where the mouse is
 			cam.offset = GetMousePosition();
-
-			// set the target to match, so that the camera maps the world space point under the cursor to the screen space point under the cursor at any zoom
 			cam.target = mouseWorldPos;
 
 			// zoom
@@ -121,17 +115,13 @@ int main(int argc, char **argv)
 		BeginMode2D(cam);
 
 		bool temp_board[ROWS][COLS] = {0};
-		// DEBUG Draw borders 
-		// DrawRectangle(0 * RECT_DIM, 0 * RECT_DIM, RECT_DIM * 4, RECT_DIM * 4, RAYWHITE);
-		// DrawRectangle(COLS * RECT_DIM, 0 * RECT_DIM, RECT_DIM * 4, RECT_DIM * 4, RAYWHITE);
-		// DrawRectangle(0, ROWS * RECT_DIM, RECT_DIM * 4, RECT_DIM * 4, RAYWHITE);
-		// DrawRectangle(COLS * RECT_DIM, ROWS * RECT_DIM, RECT_DIM * 4, RECT_DIM * 4, RAYWHITE);
 
 		for (size_t i = 0 + PADDING; i < ROWS; i++)
 		{
 			for (size_t j = 0 + PADDING; j < COLS; j++)
 			{
 				int liveNeighbors = count_live_neighbors(board, i, j);
+				// DEBUG: to see the initial state of the pattern
 				// if (board[i][j])
 				// 	temp_board[i][j] = true;
 				// else

@@ -10,10 +10,11 @@ $ ./game_of_life ./turing2x2.png
 - Download one of the pattern at https://conwaylife.appspot.com/library/
 - Most of the pattern are represented by 4x4 cells, you can change the dimension directly in the website before downloading the image, or you can adjust 'IMG_CELL_SIZE'
 
+## Creative mode
+
 ```console
 $ ./gol_empty_board create
 ```
-## Creative mode
 - D + LEFT_MOUSE_BUTTON     -> Draw left diagonal
 - D + RIGHT_MOUSE_BUTTON    -> Draw right diagonal
 - H + LEFT_MOUSE_BUTTON     -> Draw horizontal line

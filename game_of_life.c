@@ -6,16 +6,19 @@
 #include "raylib.h"
 #include "raymath.h"
 
-#define SCREEN_WIDTH 1200
-#define SCREEN_HEIGHT 800
-#define RECT_DIM 4
-#define IMG_CELL_SIZE (4 + 1)
+#define SCREEN_WIDTH 2400
+#define SCREEN_HEIGHT 1200
+#define RECT_DIM 2
+#define IMG_CELL_SIZE (2 + 1)
 #define PADDING 20
-#define ROWS 800
-#define COLS 1200
+#define ROWS 5000
+#define COLS 5150
+static bool board[ROWS][COLS] = {0};
+static bool temp_board[ROWS][COLS] = {0};
 
-void init_board(Image image, bool board[ROWS][COLS])
+void init_board(Image image)
 {
+	printf("image: (%d %d) Matrix: (%d %d)\n", image.width, image.height, COLS, ROWS);
 	assert(image.height <= (int) ROWS && image.width <= (int)COLS && "ERROR: Image resolution is greater than board size");
 	unsigned char *pixel_data = image.data;
 	for (int i = 0; i < image.height; i++)
@@ -39,14 +42,14 @@ void init_board(Image image, bool board[ROWS][COLS])
 	}
 }
 
-int count_live_neighbors(bool world[ROWS][COLS], size_t row, size_t col)
+int count_live_neighbors(size_t row, size_t col)
 {
 	int count = 0;
 	for (size_t i = row -IMG_CELL_SIZE; i <= row + IMG_CELL_SIZE; i+=IMG_CELL_SIZE)
 	{
 		for (size_t j = col - IMG_CELL_SIZE; j <= col + IMG_CELL_SIZE; j+=IMG_CELL_SIZE)
 		{
-			if ( i < ROWS && j < COLS && !(i == row && j == col) && world[i][j])
+			if ( i < ROWS && j < COLS && !(i == row && j == col) && board[i][j])
 			{
 				count++;
 			}
@@ -70,6 +73,7 @@ int main(int argc, char **argv)
 
 	// set up the window
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Conway's Game of Life");
+	SetWindowState(FLAG_WINDOW_RESIZABLE);
 	SetTargetFPS(60);
 
 	Image image = LoadImage(filename);
@@ -80,9 +84,7 @@ int main(int argc, char **argv)
 	float boardCenterY = image.height * RECT_DIM * 0.5f - SCREEN_HEIGHT / 2;
 	cam.target.x = boardCenterX;
 	cam.target.y = boardCenterY;
-
-	bool board[ROWS][COLS] = {0};
-	init_board(image, board);
+	init_board(image);
 
 	// game loop
 	while (!WindowShouldClose())
@@ -114,13 +116,13 @@ int main(int argc, char **argv)
 		BeginDrawing();
 		BeginMode2D(cam);
 
-		bool temp_board[ROWS][COLS] = {0};
+		memset(temp_board, 0, sizeof(temp_board));
 
-		for (size_t i = 0 + PADDING; i < ROWS; i++)
+		for (size_t i = 0 + PADDING; i < ROWS; i+= IMG_CELL_SIZE)
 		{
-			for (size_t j = 0 + PADDING; j < COLS; j++)
+			for (size_t j = 0 + PADDING; j < COLS; j+=IMG_CELL_SIZE)
 			{
-				int liveNeighbors = count_live_neighbors(board, i, j);
+				int liveNeighbors = count_live_neighbors(i, j);
 				// DEBUG: to see the initial state of the pattern
 				// if (board[i][j])
 				// 	temp_board[i][j] = true;
@@ -147,7 +149,7 @@ int main(int argc, char **argv)
 				}
 				if (temp_board[i][j] == true)
 				{
-					DrawRectangle(j * RECT_DIM, i * RECT_DIM, RECT_DIM, RECT_DIM, RAYWHITE);
+					DrawRectangle(j * RECT_DIM, i * RECT_DIM, RECT_DIM * IMG_CELL_SIZE - 1, RECT_DIM * IMG_CELL_SIZE - 1, RAYWHITE);
 				}
 			}
 		}

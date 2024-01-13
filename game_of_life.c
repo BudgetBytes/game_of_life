@@ -8,11 +8,11 @@
 
 #define SCREEN_WIDTH 2400
 #define SCREEN_HEIGHT 1200
-#define RECT_DIM 2
-#define IMG_CELL_SIZE (2 + 1)
+#define RECT_DIM 4
+#define IMG_CELL_SIZE (RECT_DIM + 1)
 #define PADDING 20
 #define ROWS 5000
-#define COLS 5150
+#define COLS 5200
 static bool board[ROWS][COLS] = {0};
 static bool temp_board[ROWS][COLS] = {0};
 
@@ -155,7 +155,6 @@ int main(int argc, char **argv)
 		}
 
 		memcpy(board, temp_board, sizeof(temp_board));
-		WaitTime(0.05);
 		EndMode2D();
 		EndDrawing();
 	}
